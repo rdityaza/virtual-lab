@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulasi Gerak Parabola</title>
+    <link rel="stylesheet" href="style.css">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Rajdhani:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="stars-container">
+        <div class="stars"></div>
+        <div class="twinkling"></div>
+    </div>
+
+    <div class="page-container">
+        <div class="main-lab-header">
+            <h1>🚀 Laboratorium Gerak Parabola</h1>
+            <div id="userInfo" style="display: none;">
+                <p>Selamat datang, <strong id="usernameDisplay"></strong>!</p>
+                <button id="logoutButton">Logout</button>
+            </div>
+        </div>
+
+        <main class="lab-layout">
+            <div class="lab-card">
+                <h2>Pengaturan</h2>
+                <div class="input-group">
+                    <label for="angle">Sudut (°):</label>
+                    <input type="number" id="angle" value="45" min="0" max="90">
+                </div>
+                <div class="input-group">
+                    <label for="velocity">Kecepatan Awal (m/s):</label>
+                    <input type="number" id="velocity" value="25" min="1">
+                </div>
+                <div class="input-group">
+                    <label for="gravity">Gravitasi (m/s²):</label>
+                    <input type="number" id="gravity" value="9.8" min="1">
+                </div>
+                <button id="launchButton">Luncurkan!</button>
+            </div>
+
+            <div class="simulation-area">
+                <canvas id="simulationCanvas" width="800" height="500"></canvas>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 1.5rem; flex: 1; min-width: 280px;">
+                <div class="lab-card results">
+                    <h2>Hasil Kalkulasi</h2>
+                    <p><strong>Jarak Maksimal:</strong> <span id="maxDistance">0</span> m</p>
+                    <p><strong>Tinggi Maksimal:</strong> <span id="maxHeight">0</span> m</p>
+                    <p><strong>Waktu di Udara:</strong> <span id="timeOfFlight">0</span> s</p>
+                </div>
+    
+                <div class="lab-card history">
+                    <div class="history-header">
+                        <h2>Riwayat Simulasi</h2>
+                        <button id="deleteAllButton" class="delete-all-btn">Hapus Semua</button>
+                    </div>
+                    <ul id="historyList">
+                        </ul>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <audio id="launchSound" src="assets/launch.mp3" preload="auto"></audio>
+    <audio id="impactSound" src="assets/impact.mp3" preload="auto"></audio>
+    
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,310 @@
+/* File: style.css (Versi Desain Fisika/Luar Angkasa Final) */
+
+/* --- Variabel Warna & Font --- */
+:root {
+    --bg-dark: #0F0F23; /* Biru malam/ungu gelap */
+    --card-bg: rgba(27, 27, 58, 0.6); /* Kaca buram ungu transparan */
+    --primary-accent: #4D76FD; /* Biru elektrik terang */
+    --secondary-accent: #00F5D4; /* Teal/Cyan neon */
+    --text-color: #EAEAEA; /* Putih pudar agar nyaman dibaca */
+    --border-color: rgba(77, 118, 253, 0.3);
+
+    --font-heading: 'Rajdhani', sans-serif;
+    --font-body: 'Poppins', sans-serif;
+}
+
+/* --- Reset & Gaya Global --- */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font-body);
+    background-color: var(--bg-dark);
+    color: var(--text-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+h1, h2 {
+    font-family: var(--font-heading);
+    color: white;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+/* --- Latar Belakang Bintang Bergerak (CSS Murni!) --- */
+@keyframes move-stars {
+    from { transform: translateY(0px); }
+    to { transform: translateY(-2000px); }
+}
+
+.stars-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+}
+
+.stars, .twinkling {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.stars {
+    background: #000 url(https://www.script-tutorials.com/demos/360/images/stars.png) repeat top center;
+    z-index: 0;
+}
+
+.twinkling {
+    background: transparent url(https://www.script-tutorials.com/demos/360/images/twinkling.png) repeat top center;
+    z-index: 1;
+    animation: move-stars 200s linear infinite;
+}
+
+/* --- Struktur Utama --- */
+.page-container {
+    padding: 2rem;
+    width: 100%;
+    max-width: 1400px;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+/* --- Kartu untuk Login & Register --- */
+.auth-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.auth-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 400px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+.auth-card h2 {
+    margin-bottom: 2rem;
+    color: var(--secondary-accent);
+}
+
+/* --- Form Input & Tombol --- */
+.input-group {
+    margin-bottom: 1.5rem;
+}
+
+label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+input[type="text"], input[type="password"], input[type="number"] {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    color: var(--text-color);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+input:focus {
+    outline: none;
+    border-color: var(--primary-accent);
+    box-shadow: 0 0 15px rgba(77, 118, 253, 0.5);
+}
+
+button {
+    width: 100%;
+    padding: 0.8rem;
+    background: linear-gradient(45deg, var(--primary-accent), #3658c9);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: var(--font-heading);
+    font-size: 1.2rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 20px rgba(77, 118, 253, 0.4);
+}
+
+button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0 30px rgba(77, 118, 253, 0.7);
+}
+
+.auth-card p {
+    text-align: center;
+    margin-top: 1.5rem;
+}
+
+.auth-card a {
+    color: var(--secondary-accent);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+/* --- Gaya untuk Halaman index.html --- */
+.main-lab-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+#userInfo {
+    background-color: var(--card-bg);
+    padding: 1rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    border: 1px solid var(--border-color);
+}
+
+#userInfo p {
+    display: inline;
+    margin-right: 1rem;
+}
+
+#logoutButton {
+    width: auto;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+}
+
+.lab-layout {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+    flex-wrap: wrap;
+}
+
+.lab-card {
+    flex: 1;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 1.5rem;
+    backdrop-filter: blur(10px);
+    min-width: 280px;
+}
+
+.simulation-area {
+    flex: 2.5; /* Membuat kanvas lebih lebar */
+    padding: 0;
+    background: none;
+    backdrop-filter: none;
+    min-width: 400px;
+}
+
+#simulationCanvas {
+    border-radius: 12px;
+    width: 100%;
+    height: auto;
+    background-image: 
+        linear-gradient(rgba(77, 118, 253, 0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(77, 118, 253, 0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
+    border: 1px solid var(--border-color);
+}
+
+.results p, .history li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-color);
+}
+.history li:last-child {
+    border: none;
+}
+
+.history ul {
+    list-style: none;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+/* --- Gaya untuk Fitur Hapus --- */
+.history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.delete-all-btn {
+    background: #c0392b; /* Merah */
+    font-size: 0.8rem;
+    padding: 0.4rem 0.8rem;
+    width: auto;
+    box-shadow: 0 0 15px rgba(231, 76, 60, 0.4);
+}
+.delete-all-btn:hover {
+    background: #e74c3c;
+    box-shadow: 0 0 20px rgba(231, 76, 60, 0.7);
+}
+
+.history li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background-color 0.3s;
+}
+
+.delete-item-btn {
+    background: none;
+    border: none;
+    color: #e74c3c;
+    cursor: pointer;
+    font-size: 1.2rem;
+    padding: 0.5rem;
+    opacity: 0.5;
+    transition: opacity 0.3s;
+}
+
+.history li:hover .delete-item-btn {
+    opacity: 1;
+}
+
+/* --- Animasi & Transisi Desain --- */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.lab-card {
+    animation: fadeInUp 0.5s ease-out forwards;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.lab-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 32px 0 rgba(77, 118, 253, 0.3);
+}
