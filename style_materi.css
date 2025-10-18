@@ -1,0 +1,68 @@
+/* style_materi.css */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Rajdhani:wght@500;700&display=swap');
+
+:root {
+    --bg-dark: #0F0F23;
+    --card-bg: rgba(27, 27, 58, 0.6);
+    --primary-accent: #4D76FD;
+    --secondary-accent: #00F5D4;
+    --text-color: #EAEAEA;
+    --border-color: rgba(77, 118, 253, 0.3);
+    --font-heading: 'Rajdhani', sans-serif;
+    --font-body: 'Roboto', sans-serif;
+}
+
+body {
+    font-family: var(--font-body);
+    background-color: var(--bg-dark);
+    color: var(--text-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+    background-image: linear-gradient(45deg, var(--bg-dark) 0%, #1f1f3d 100%);
+}
+
+.quiz-container { /* Nama class dipertahankan untuk konsistensi */
+    background-color: var(--card-bg);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 800px;
+    padding: 30px 40px;
+}
+
+.nav-btn {
+    background-color: var(--primary-accent);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 25px;
+    font-size: 1rem;
+    font-weight: 700;
+    font-family: var(--font-heading);
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.nav-btn:hover {
+    background-color: #3a65e8;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(77, 118, 253, 0.4);
+}
+
+/* Gaya khusus Halaman Materi */
+.materi-title { font-family: var(--font-heading); color: var(--secondary-accent); text-align: center; font-size: 2.5rem; margin-bottom: 30px; border-bottom: 2px solid var(--border-color); padding-bottom: 15px; }
+.materi-section { margin-bottom: 30px; }
+.materi-section h3 { font-family: var(--font-heading); font-size: 1.5rem; color: var(--primary-accent); margin-bottom: 15px; }
+.materi-section h4 { font-family: var(--font-heading); font-size: 1.2rem; color: var(--secondary-accent); margin-top: 20px; }
+.materi-section p, .materi-section li { line-height: 1.7; font-size: 1rem; }
+.materi-section ul { padding-left: 20px; }
+.contoh-soal { border: 1px solid var(--border-color); border-radius: 10px; padding: 20px; margin-top: 20px; background-color: rgba(0,0,0,0.15); }
+.pembahasan { margin-top: 15px; padding-top: 15px; border-top: 1px dashed var(--border-color); }
+.pembahasan p { font-family: monospace; background-color: rgba(0,0,0,0.2); padding: 10px; border-radius: 5px; }

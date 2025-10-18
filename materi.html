@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Materi Gerak Parabola</title>
+    <link rel="stylesheet" href="style_materi.css">
+</head>
+<body>
+    <div class="quiz-container">
+        
+        <div class="materi-page">
+            <h2 class="materi-title">Materi Gerak Parabola 📚</h2>
+            
+            <div class="materi-section">
+                <h3>Apa itu Gerak Parabola?</h3>
+                <p>Gerak parabola adalah gerak benda yang dilemparkan dengan sudut tertentu terhadap horizontal dan hanya dipengaruhi oleh gaya gravitasi. Gerak ini merupakan gabungan (superposisi) dari dua jenis gerak:</p>
+                <ul>
+                    <li><b>Gerak Lurus Beraturan (GLB)</b> pada sumbu horizontal (sumbu-x), karena tidak ada gaya yang bekerja secara horizontal (gesekan udara diabaikan). Kecepatannya selalu konstan.</li>
+                    <li><b>Gerak Lurus Berubah Beraturan (GLBB)</b> pada sumbu vertikal (sumbu-y), karena ada percepatan gravitasi (g) yang arahnya selalu ke bawah. Kecepatannya berubah-ubah.</li>
+                </ul>
+                
+            </div>
+
+            <div class="materi-section">
+                <h3>Rumus-Rumus Kunci</h3>
+                <p>Dengan kecepatan awal $v_0$ dan sudut elevasi $\theta$:</p>
+                <h4>Analisis Sumbu X (Horizontal)</h4>
+                <ul>
+                    <li>Kecepatan Horizontal (selalu konstan): $v_x = v_0 \cos(\theta)$</li>
+                    <li>Posisi Horizontal: $x = v_x \cdot t$</li>
+                </ul>
+                <h4>Analisis Sumbu Y (Vertikal)</h4>
+                <ul>
+                    <li>Kecepatan Awal Vertikal: $v_{0y} = v_0 \sin(\theta)$</li>
+                    <li>Kecepatan Vertikal pada waktu t: $v_y = v_{0y} - g \cdot t$</li>
+                    <li>Posisi Vertikal pada waktu t: $y = v_{0y} \cdot t - \frac{1}{2}gt^2$</li>
+                </ul>
+                <h4>Rumus Turunan Penting</h4>
+                 <ul>
+                    <li>Waktu Mencapai Puncak ($t_p$): $t_p = \frac{v_0 \sin(\theta)}{g}$</li>
+                    <li>Tinggi Maksimum ($H_{max}$): $H_{max} = \frac{(v_0 \sin(\theta))^2}{2g}$</li>
+                    <li>Jangkauan Terjauh ($R$): $R = \frac{v_0^2 \sin(2\theta)}{g}$</li>
+                </ul>
+            </div>
+
+            <div class="materi-section">
+                <h3>Contoh Soal dan Pembahasan</h3>
+                
+                <div class="contoh-soal">
+                    <h4>Contoh 1: Mencari Tinggi Maksimum</h4>
+                    <p><b>Soal:</b> Sebuah bola ditendang dengan kecepatan awal 20 m/s dan sudut elevasi 30°. Tentukan tinggi maksimum yang dicapai bola! (g = 10 m/s²)</p>
+                    <div class="pembahasan">
+                        <p><b>Diketahui:</b><br>$v_0 = 20$ m/s<br>$\theta = 30^\circ$<br>$g = 10$ m/s²</p>
+                        <p><b>Ditanya:</b> Tinggi Maksimum ($H_{max}$)</p>
+                        <p><b>Jawab:</b><br>
+                        Pertama, cari komponen kecepatan awal vertikal:<br>
+                        $v_{0y} = v_0 \sin(\theta) = 20 \cdot \sin(30^\circ) = 20 \cdot 0.5 = 10$ m/s<br><br>
+                        Gunakan rumus tinggi maksimum:<br>
+                        $H_{max} = \frac{v_{0y}^2}{2g} = \frac{10^2}{2 \cdot 10} = \frac{100}{20} = 5$ meter.<br>
+                        Jadi, tinggi maksimum bola adalah <b>5 meter</b>.</p>
+                    </div>
+                </div>
+
+                </div>
+            
+            <a href="kuis.html" class="nav-btn" style="display: block; text-align: center; margin: 40px auto 0;">Mulai Kuis!</a>
+        </div>
+
+    </div>
+
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+</body>
+</html>

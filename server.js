@@ -43,6 +43,20 @@ const path = require('path');
 const app = express();
 const PORT = 3000;
 
+// CORS middleware untuk mengatasi masalah cross-origin
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+    
+    // Handle preflight requests
+    if (req.method === 'OPTIONS') {
+        res.sendStatus(200);
+    } else {
+        next();
+    }
+});
+
 app.use(express.json());
 app.use(express.static(__dirname)); 
 
@@ -129,13 +143,21 @@ app.delete('/api/history', authMiddleware, async (req, res) => {
 // [POST] /api/auth/register
 // Tugas: Menerima username & password, lalu membuat pengguna baru.
 app.post('/api/auth/register', async (req, res) => {
+    console.log('=== REGISTER REQUEST RECEIVED ===');
+    console.log('Request body:', req.body);
+    console.log('Request headers:', req.headers);
+    
     try {
         // 1. Ambil username dan password dari request body
         const { username, password } = req.body;
 
+        console.log('Extracted username:', username);
+        console.log('Extracted password length:', password ? password.length : 'undefined');
+
         // 2. Cek apakah username sudah ada di database
         const existingUser = await User.findOne({ username: username });
         if (existingUser) {
+            console.log('User already exists:', username);
             // Jika sudah ada, kirim error 400 (Bad Request)
             return res.status(400).json({ message: "Username sudah digunakan." });
         }
@@ -148,11 +170,13 @@ app.post('/api/auth/register', async (req, res) => {
 
         // 4. Simpan user baru ke database
         await newUser.save();
+        console.log('New user created successfully:', username);
 
         // 5. Kirim respons sukses
         res.status(201).json({ message: "Pengguna berhasil terdaftar!" });
 
     } catch (error) {
+        console.error('Registration error:', error);
         // Jika ada error lain, kirim error 500 (Internal Server Error)
         res.status(500).json({ message: "Terjadi kesalahan pada server.", error: error });
     }
