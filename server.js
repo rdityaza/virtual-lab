@@ -1,6 +1,7 @@
 // =================================================================
 // GANTI SELURUH ISI SERVER.JS ANDA DENGAN KODE BARU INI
 // =================================================================
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const User = require('./models/User');
@@ -8,30 +9,126 @@ const Simulation = require('./models/Simulation');
 const Score = require('./models/Score');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 const JWT_SECRET = 'kunci-rahasia-ini-sangat-aman-dan-harus-diganti';
 
-// --- MIDDLEWARE UNTUK MEMVERIFIKASI TOKEN ---
+// AWAL Gemini AI
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'YOUR_GEMINI_API_KEY_HERE';
+
+const systemInstruction = `
+Anda adalah tutor fisika yang ramah untuk sebuah web pembelajaran.
+Topik keahlian Anda hanya dan secara eksklusif adalah gerak parabola.
+Jangan pernah menjawab pertanyaan tentang subjek lain, termasuk topik fisika lainnya, sejarah, biologi, atau pertanyaan umum.
+Jika pengguna bertanya di luar topik, Anda wajib menolak dengan sopan dan mengarahkan kembali percakapan ke gerak parabola.
+
+ATURAN FORMAT JAWABAN YANG WAJIB DIIKUTI:
+1. Gunakan paragraf pendek dan jelas (maksimal 2-3 kalimat per paragraf)
+2. Pisahkan setiap poin dengan bullet points menggunakan tanda • (bukan *)
+3. Gunakan **teks tebal** untuk konsep penting (gunakan ** bukan *)
+4. Untuk rumus matematika, gunakan format: v₀ (bukan v_0), θ (bukan \\theta), g = 9.8 m/s²
+5. Jangan gunakan tanda * berlebihan atau formatting LaTeX yang rumit
+6. Berikan contoh nyata yang mudah dipahami
+7. Hindari penggunaan tanda bintang (*) kecuali untuk membuat teks tebal dengan **
+
+Format yang DILARANG:
+- Jangan pakai tanda *** atau **** 
+- Jangan pakai format seperti "Gerak Horizontal (Sumbu-X):*"
+- Jangan pakai \\frac, \\sin, \\cos - gunakan sin, cos biasa
+- Jangan pakai terlalu banyak rumus LaTeX yang rumit
+
+Contoh format jawaban yang BENAR:
+**Gerak parabola** adalah gerakan benda yang dilempar dengan sudut tertentu.
+
+Karakteristik utama:
+• Lintasan berbentuk melengkung seperti busur
+• Dipengaruhi oleh gravitasi g = 9.8 m/s²
+• Memiliki komponen horizontal dan vertikal
+
+**Rumus dasar:**
+• Kecepatan horizontal: vₓ = v₀ cos θ
+• Kecepatan vertikal: vᵧ = v₀ sin θ - gt
+
+Contoh nyata: bola basket yang dilempar ke ring.
+`;
+
+function formatGeminiResponse(text) {
+    let formatted = text.trim();
+    
+    formatted = formatted.replace(/\*{3,}/g, ''); 
+    formatted = formatted.replace(/([^:]+):\*+/g, '<strong>$1:</strong>'); 
+    
+    formatted = formatted.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>'); 
+    formatted = formatted.replace(/\*([^*]+)\*(?!\*)/g, '<strong>$1</strong>'); 
+    
+    formatted = formatted.replace(/\*(?![a-zA-Z0-9])/g, '');
+    
+    formatted = formatted.replace(/\\theta/g, 'θ');
+    formatted = formatted.replace(/\\sin/g, 'sin');
+    formatted = formatted.replace(/\\cos/g, 'cos');
+    formatted = formatted.replace(/\\tan/g, 'tan');
+    formatted = formatted.replace(/\\cdot/g, '·');
+    
+    formatted = formatted.replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, '<span class="formula">($1)/($2)</span>');
+    
+    formatted = formatted.replace(/([a-zA-Z])_\{([^}]+)\}/g, '$1<sub>$2</sub>');
+    formatted = formatted.replace(/([a-zA-Z])_([a-zA-Z0-9])/g, '$1<sub>$2</sub>');
+    formatted = formatted.replace(/\^\{([^}]+)\}/g, '<sup>$1</sup>');
+    formatted = formatted.replace(/\^([0-9]+)/g, '<sup>$1</sup>');
+    
+    formatted = formatted.replace(/\$([^$]+)\$/g, '<span class="formula">$1</span>');
+    
+    formatted = formatted.replace(/•\s*/g, '<br>• ');
+    formatted = formatted.replace(/\n•/g, '<br>•');
+    
+    formatted = formatted.replace(/(\d+)\.\s*/g, '<br>$1. ');
+    
+    formatted = formatted.replace(/\n([A-Za-z\s]+):/g, '<br><strong>$1:</strong>');
+    formatted = formatted.replace(/^([A-Za-z\s]+):/g, '<strong>$1:</strong>');
+    
+    formatted = formatted.replace(/\n\n/g, '<br><br>'); 
+    formatted = formatted.replace(/\n/g, '<br>'); 
+    
+    formatted = formatted.replace(/(<br>){3,}/g, '<br><br>');
+    
+    formatted = formatted.replace(/^(<br>)+/, '');
+    formatted = formatted.replace(/(<br>)+$/, '');
+    
+    formatted = formatted.replace(/\s*<span class="formula">/g, ' <span class="formula">');
+    formatted = formatted.replace(/<\/span>\s*/g, '</span> ');
+    
+    return formatted.trim();
+}
+
+// Inisialisasi model Gemini
+let genAI, model;
+if (GEMINI_API_KEY && GEMINI_API_KEY !== 'YOUR_GEMINI_API_KEY_HERE') {
+    try {
+        console.log("Mencoba inisialisasi Gemini AI dengan API key...");
+        genAI = new GoogleGenerativeAI(GEMINI_API_KEY.trim());
+        model = genAI.getGenerativeModel({ 
+            model: "gemini-2.5-flash"
+        });
+        console.log("Gemini AI berhasil diinisialisasi!");
+    } catch (error) {
+        console.error("Error inisialisasi Gemini AI:", error);
+    }
+} else {
+    console.log("API key Gemini belum diset atau tidak valid:", GEMINI_API_KEY);
+}
 const authMiddleware = (req, res, next) => {
-    // 1. Ambil token dari header request
     const authHeader = req.header('Authorization');
 
-    // 2. Cek jika header Authorization ada atau tidak
     if (!authHeader) {
         return res.status(401).json({ message: 'Akses ditolak. Tidak ada token.' });
     }
 
     try {
-        // Header biasanya formatnya "Bearer <token>", jadi kita ambil tokennya saja
         const token = authHeader.split(' ')[1];
 
-        // 3. Verifikasi token menggunakan JWT_SECRET
         const decoded = jwt.verify(token, JWT_SECRET);
 
-        // 4. Jika token valid, "decoded" akan berisi payload (data user)
-        // Kita sisipkan data user ini ke dalam object request agar bisa digunakan oleh rute selanjutnya
         req.user = decoded.user;
 
-        // 5. Lanjutkan ke fungsi rute yang sebenarnya
         next();
     } catch (error) {
         res.status(401).json({ message: 'Token tidak valid.' });
@@ -44,13 +141,11 @@ const path = require('path');
 const app = express();
 const PORT = 3000;
 
-// CORS middleware untuk mengatasi masalah cross-origin
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
     
-    // Handle preflight requests
     if (req.method === 'OPTIONS') {
         res.sendStatus(200);
     } else {
@@ -63,8 +158,6 @@ app.use(express.static(__dirname));
 
 const dataFilePath = path.join(__dirname, 'data.json');
 
-// --- KONEKSI KE DATABASE MONGODB ATLAS ---
-// Ganti <password> dengan password yang sudah Anda simpan tadi!
 const connectionString = "mongodb+srv://user_lab:user_lab_098@cluster-lab-virtual.chof9bt.mongodb.net/?retryWrites=true&w=majority&appName=cluster-lab-virtual";
 
 mongoose.connect(connectionString)
@@ -74,17 +167,11 @@ mongoose.connect(connectionString)
   .catch((error) => {
     console.error("Koneksi database gagal:", error);
   });
-// -----------------------------------------
-
-// Endpoint GET yang sudah diperbaiki
-// [GET] /api/history - Mengambil riwayat simulasi pengguna (TERPROTEKSI)
 app.get('/api/history', authMiddleware, async (req, res) => {
     try {
-        // Cari semua data simulasi di database yang cocok dengan ID pengguna yang login
-        // req.user.id disediakan oleh authMiddleware setelah verifikasi token
         const userHistory = await Simulation.find({ user: req.user.id })
-            .sort({ timestamp: -1 }) // Urutkan dari yang paling baru
-            .limit(10); // Batasi hanya 10 hasil teratas
+            .sort({ timestamp: -1 }) 
+            .limit(10); 
 
         res.json(userHistory);
     } catch (error) {
@@ -93,26 +180,21 @@ app.get('/api/history', authMiddleware, async (req, res) => {
     }
 });
 
-// [DELETE] /api/history/:id - Menghapus satu entri riwayat (TERPROTEKSI)
 app.delete('/api/history/:id', authMiddleware, async (req, res) => {
     try {
         const simulationId = req.params.id;
         const userId = req.user.id;
 
-        // Cari simulasi berdasarkan ID-nya
         const simulation = await Simulation.findById(simulationId);
 
-        // Jika tidak ditemukan, kirim error
         if (!simulation) {
             return res.status(404).json({ message: 'Riwayat tidak ditemukan.' });
         }
 
-        // PENTING: Pastikan pengguna hanya bisa menghapus riwayat miliknya sendiri
         if (simulation.user.toString() !== userId) {
             return res.status(403).json({ message: 'Akses ditolak. Anda tidak memiliki izin.' });
         }
 
-        // Hapus simulasi dari database
         await Simulation.findByIdAndDelete(simulationId);
 
         res.json({ message: 'Riwayat berhasil dihapus.' });
@@ -123,12 +205,10 @@ app.delete('/api/history/:id', authMiddleware, async (req, res) => {
     }
 });
 
-// [DELETE] /api/history - Menghapus SEMUA riwayat milik pengguna (TERPROTEKSI)
 app.delete('/api/history', authMiddleware, async (req, res) => {
     try {
         const userId = req.user.id;
 
-        // Hapus semua dokumen simulasi yang cocok dengan ID pengguna
         await Simulation.deleteMany({ user: userId });
 
         res.json({ message: 'Semua riwayat berhasil dihapus.' });
@@ -139,88 +219,80 @@ app.delete('/api/history', authMiddleware, async (req, res) => {
     }
 });
 
-// [GET] /api/best-score - Mengambil best score pengguna (TERPROTEKSI)
-app.get('/api/best-score', authMiddleware, async (req, res) => {
+app.post('/api/chatbot', authMiddleware, async (req, res) => {
     try {
-        const userScore = await Score.findOne({ user: req.user.id });
-        res.json({ bestScore: userScore ? userScore.bestScore : 0 });
-    } catch (error) {
-        console.error("ERROR SAAT MENGAMBIL BEST SCORE:", error);
-        res.status(500).json({ message: "Terjadi kesalahan pada server." });
-    }
-});
-
-// [POST] /api/best-score - Menyimpan/update best score pengguna (TERPROTEKSI)
-app.post('/api/best-score', authMiddleware, async (req, res) => {
-    try {
-        const { score } = req.body;
-        const userId = req.user.id;
-
-        // Cari skor yang sudah ada atau buat baru
-        let userScore = await Score.findOne({ user: userId });
+        const { message } = req.body;
         
-        if (!userScore) {
-            // Buat record score baru
-            userScore = new Score({
-                user: userId,
-                bestScore: score
-            });
-        } else {
-            // Update jika skor baru lebih tinggi
-            if (score > userScore.bestScore) {
-                userScore.bestScore = score;
-                userScore.lastUpdated = new Date();
-            }
+        console.log('=== CHATBOT REQUEST RECEIVED ===');
+        console.log('User:', req.user.username);
+        console.log('Message:', message);
+        
+        if (!message || message.trim().length === 0) {
+            return res.status(400).json({ error: 'Pesan tidak boleh kosong.' });
         }
 
-        await userScore.save();
-        res.json({ message: "Best score berhasil disimpan!", bestScore: userScore.bestScore });
+        if (!model) {
+            console.log('Model not initialized');
+            return res.json({ 
+                response: 'Maaf, chatbot belum dikonfigurasi dengan benar. Silakan hubungi administrator untuk mengatur API key Gemini.' 
+            });
+        }
+
+        console.log('Sending to Gemini AI...');
+
+        const fullPrompt = `${systemInstruction}\n\nPertanyaan pengguna: ${message}\n\nJawaban:`;
+
+        const result = await model.generateContent(fullPrompt);
+        const response = await result.response;
+        const rawText = response.text();
+
+        const formattedText = formatGeminiResponse(rawText);
+
+        console.log('Gemini response received:', rawText.substring(0, 100) + '...');
+        console.log('Formatted response:', formattedText.substring(0, 100) + '...');
+
+        res.json({ response: formattedText });
+
     } catch (error) {
-        console.error("ERROR SAAT MENYIMPAN BEST SCORE:", error);
-        res.status(500).json({ message: "Terjadi kesalahan pada server." });
+        console.error('=== CHATBOT ERROR ===');
+        console.error('Error:', error.message);
+        console.error('Stack:', error.stack);
+        
+        res.status(500).json({ 
+            error: 'Terjadi kesalahan pada chatbot.',
+            response: 'Maaf, saya mengalami gangguan teknis. Silakan coba lagi dalam beberapa saat.'
+        });
     }
 });
 
-// --- RUTE UNTUK AUTENTIKASI ---
-
-// [POST] /api/auth/register
-// Tugas: Menerima username & password, lalu membuat pengguna baru.
 app.post('/api/auth/register', async (req, res) => {
     console.log('=== REGISTER REQUEST RECEIVED ===');
     console.log('Request body:', req.body);
     console.log('Request headers:', req.headers);
     
     try {
-        // 1. Ambil username dan password dari request body
         const { username, password } = req.body;
 
         console.log('Extracted username:', username);
         console.log('Extracted password length:', password ? password.length : 'undefined');
 
-        // 2. Cek apakah username sudah ada di database
         const existingUser = await User.findOne({ username: username });
         if (existingUser) {
             console.log('User already exists:', username);
-            // Jika sudah ada, kirim error 400 (Bad Request)
             return res.status(400).json({ message: "Username sudah digunakan." });
         }
 
-        // 3. Buat instance user baru menggunakan User Model
         const newUser = new User({
             username: username,
-            password: password // Ingat, password akan di-hash otomatis oleh pre-save hook
+            password: password 
         });
-
-        // 4. Simpan user baru ke database
         await newUser.save();
         console.log('New user created successfully:', username);
 
-        // 5. Kirim respons sukses
         res.status(201).json({ message: "Pengguna berhasil terdaftar!" });
 
     } catch (error) {
         console.error('Registration error:', error);
-        // Jika ada error lain, kirim error 500 (Internal Server Error)
         res.status(500).json({ message: "Terjadi kesalahan pada server.", error: error });
     }
 });
@@ -229,28 +301,21 @@ app.post('/api/auth/register', async (req, res) => {
 // Tugas: Memverifikasi kredensial dan memberikan JWT jika berhasil.
 app.post('/api/auth/login', async (req, res) => {
     try {
-        // 1. Ambil username dan password dari request body
         const { username, password } = req.body;
 
-        // 2. Cari pengguna berdasarkan username
         const user = await User.findOne({ username: username });
         if (!user) {
-            // Jika pengguna tidak ditemukan, kirim error 400
             return res.status(400).json({ message: "Username atau password salah." });
         }
 
-        // 3. Bandingkan password yang diberikan dengan hash di database
-        // bcrypt.compare() akan melakukan ini dengan aman
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            // Jika password tidak cocok, kirim error 400
             return res.status(400).json({ message: "Username atau password salah." });
         }
 
-        // 4. Jika password cocok, buat JWT (paspor digital)
         const payload = {
             user: {
-                id: user.id, // ID pengguna dari database
+                id: user.id, 
                 username: user.username
             }
         };
@@ -258,10 +323,9 @@ app.post('/api/auth/login', async (req, res) => {
         jwt.sign(
             payload,
             JWT_SECRET,
-            { expiresIn: '1h' }, // Token akan kedaluwarsa dalam 1 jam
+            { expiresIn: '1h' },
             (err, token) => {
                 if (err) throw err;
-                // 5. Kirim token ke pengguna
                 res.json({ token: token });
             }
         );
@@ -272,19 +336,16 @@ app.post('/api/auth/login', async (req, res) => {
     }
 });
 
-// [POST] /api/save - Menyimpan hasil simulasi (TERPROTEKSI)
 app.post('/api/save', authMiddleware, async (req, res) => {
     try {
-        // Ambil data simulasi dari body request
         const { angle, velocity, distance, height } = req.body;
 
-        // Buat entri simulasi baru di database
         const newSimulation = new Simulation({
             angle,
             velocity,
             distance,
             height,
-            user: req.user.id // ID pengguna didapat dari token via authMiddleware
+            user: req.user.id 
         });
 
         await newSimulation.save();

@@ -70,9 +70,29 @@
             </div>
         </div>
 
+        <!-- Chatbot Section -->
+        <div class="chatbot-section">
+            <h2>🤖 Tanya Tutor Fisika</h2>
+            <p>Punya pertanyaan tentang gerak parabola? Tanya saja!</p>
+            
+            <div class="chat-container">
+                <div id="chatMessages" class="chat-messages">
+                    <div class="bot-message">
+                        <div class="message-content">
+                            Halo! Saya tutor fisika Anda. Silakan tanyakan apa saja tentang <strong>gerak parabola</strong>! 🚀
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="chat-input-container">
+                    <input type="text" id="chatInput" placeholder="Ketik pertanyaan Anda tentang gerak parabola...">
+                    <button id="sendButton" onclick="sendMessage()">Kirim</button>
+                </div>
+            </div>
+        </div>
+
     </div>
     <script>
-        // Konfigurasi MathJax
         window.MathJax = {
             tex: {
                 inlineMath: [['$', '$'], ['\\(', '\\)']],
@@ -84,6 +104,97 @@
                 skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
             }
         };
+
+        let isTyping = false;
+
+        function addMessage(content, isUser = false) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = isUser ? 'user-message' : 'bot-message';
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            contentDiv.innerHTML = content;
+            
+            messageDiv.appendChild(contentDiv);
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function showTypingIndicator() {
+            const chatMessages = document.getElementById('chatMessages');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'bot-message typing-indicator';
+            typingDiv.id = 'typingIndicator';
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            contentDiv.innerHTML = 'Sedang mengetik<span class="typing-dots"><span></span><span></span><span></span></span>';
+            
+            typingDiv.appendChild(contentDiv);
+            chatMessages.appendChild(typingDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function hideTypingIndicator() {
+            const indicator = document.getElementById('typingIndicator');
+            if (indicator) {
+                indicator.remove();
+            }
+        }
+
+        async function sendMessage() {
+            const chatInput = document.getElementById('chatInput');
+            const sendButton = document.getElementById('sendButton');
+            const message = chatInput.value.trim();
+            
+            if (!message || isTyping) return;
+            
+            // Add user message
+            addMessage(message, true);
+            chatInput.value = '';
+            
+            // Disable input
+            isTyping = true;
+            sendButton.disabled = true;
+            showTypingIndicator();
+            
+            try {
+                const response = await fetch('/api/chatbot', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify({ message })
+                });
+                
+                const data = await response.json();
+                
+                hideTypingIndicator();
+                
+                if (response.ok) {
+                    addMessage(data.response);
+                } else {
+                    addMessage('Maaf, terjadi kesalahan. Silakan coba lagi.');
+                }
+            } catch (error) {
+                hideTypingIndicator();
+                addMessage('Maaf, tidak dapat terhubung ke server. Silakan coba lagi.');
+                console.error('Chat error:', error);
+            }
+            
+            // Re-enable input
+            isTyping = false;
+            sendButton.disabled = false;
+        }
+
+        // Enter key to send message
+        document.getElementById('chatInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !isTyping) {
+                sendMessage();
+            }
+        });
     </script>
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
