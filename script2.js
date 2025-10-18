@@ -1,5 +1,12 @@
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Cek autentikasi
+    const token = localStorage.getItem('token');
+    if (!token) {
+        window.location.href = 'login.html';
+        return;
+    }
+
     let currentPage = 1;
     const totalPages = 6; 
     const totalQuestions = 25;
@@ -13,7 +20,44 @@ document.addEventListener('DOMContentLoaded', () => {
     const scoreDetailsElement = document.getElementById('score-details');
     const retryBtn = document.getElementById('retryBtn');
 
-    function calculateScore() {
+    // Load best score dari server
+    async function loadBestScore() {
+        try {
+            const response = await fetch('/api/best-score', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                return data.bestScore || 0;
+            }
+        } catch (error) {
+            console.error('Error loading best score:', error);
+        }
+        return 0;
+    }
+
+    // Save best score ke server
+    async function saveBestScore(score) {
+        try {
+            const response = await fetch('/api/best-score', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ score })
+            });
+            if (!response.ok) {
+                throw new Error('Failed to save best score');
+            }
+        } catch (error) {
+            console.error('Error saving best score:', error);
+        }
+    }
+
+    async function calculateScore() {
         let score = 0;
         let correctAnswers = 0;
 
@@ -25,8 +69,24 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         
+        const bestScore = await loadBestScore();
+        let isNewBest = false;
+        
+        if (score > bestScore) {
+            await saveBestScore(score);
+            isNewBest = true;
+        }
+        
         scoreElement.textContent = score;
-        scoreDetailsElement.textContent = `Anda menjawab ${correctAnswers} dari ${totalQuestions} soal dengan benar.`;
+        
+        let details = `Anda menjawab ${correctAnswers} dari ${totalQuestions} soal dengan benar.`;
+        details += `<br><strong>Skor Terbaik Anda: ${Math.max(score, bestScore)}</strong>`;
+        
+        if (isNewBest && score > 0) {
+            details += `<br><span style="color: #00F5D4; font-weight: bold;">🎉 REKOR BARU!</span>`;
+        }
+        
+        scoreDetailsElement.innerHTML = details;
     }
 
     function updatePage() {

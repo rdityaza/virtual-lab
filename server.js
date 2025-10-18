@@ -5,6 +5,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const User = require('./models/User');
 const Simulation = require('./models/Simulation');
+const Score = require('./models/Score');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const JWT_SECRET = 'kunci-rahasia-ini-sangat-aman-dan-harus-diganti';
@@ -135,6 +136,48 @@ app.delete('/api/history', authMiddleware, async (req, res) => {
     } catch (error) {
         console.error("ERROR SAAT MENGHAPUS SEMUA RIWAYAT:", error);
         res.status(500).json({ message: 'Terjadi kesalahan pada server.' });
+    }
+});
+
+// [GET] /api/best-score - Mengambil best score pengguna (TERPROTEKSI)
+app.get('/api/best-score', authMiddleware, async (req, res) => {
+    try {
+        const userScore = await Score.findOne({ user: req.user.id });
+        res.json({ bestScore: userScore ? userScore.bestScore : 0 });
+    } catch (error) {
+        console.error("ERROR SAAT MENGAMBIL BEST SCORE:", error);
+        res.status(500).json({ message: "Terjadi kesalahan pada server." });
+    }
+});
+
+// [POST] /api/best-score - Menyimpan/update best score pengguna (TERPROTEKSI)
+app.post('/api/best-score', authMiddleware, async (req, res) => {
+    try {
+        const { score } = req.body;
+        const userId = req.user.id;
+
+        // Cari skor yang sudah ada atau buat baru
+        let userScore = await Score.findOne({ user: userId });
+        
+        if (!userScore) {
+            // Buat record score baru
+            userScore = new Score({
+                user: userId,
+                bestScore: score
+            });
+        } else {
+            // Update jika skor baru lebih tinggi
+            if (score > userScore.bestScore) {
+                userScore.bestScore = score;
+                userScore.lastUpdated = new Date();
+            }
+        }
+
+        await userScore.save();
+        res.json({ message: "Best score berhasil disimpan!", bestScore: userScore.bestScore });
+    } catch (error) {
+        console.error("ERROR SAAT MENYIMPAN BEST SCORE:", error);
+        res.status(500).json({ message: "Terjadi kesalahan pada server." });
     }
 });
 

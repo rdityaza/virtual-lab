@@ -189,10 +189,47 @@ button:hover {
     margin-right: 1rem;
 }
 
+.nav-buttons {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.nav-link-btn {
+    background: linear-gradient(135deg, var(--primary-accent), var(--secondary-accent));
+    color: white;
+    text-decoration: none;
+    padding: 0.7rem 1.2rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    text-align: center;
+    min-width: 100px;
+}
+
+.nav-link-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(77, 118, 253, 0.4);
+    text-decoration: none;
+    color: white;
+}
+
 #logoutButton {
     width: auto;
-    padding: 0.5rem 1rem;
+    padding: 0.7rem 1.2rem;
     font-size: 0.9rem;
+    background: rgba(255, 68, 68, 0.8);
+    border: none;
+    color: white;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
 .lab-layout {
