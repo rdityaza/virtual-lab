@@ -4,7 +4,6 @@
   "description": "Virtual Physics Lab - Projectile Motion Simulator with AI Chatbot",
   "main": "api/server.js",
   "scripts": {
-    "start": "node server.js",
     "dev": "vercel dev",
     "build": "echo 'Build completed'",
     "test": "echo \"Error: no test specified\" && exit 1"

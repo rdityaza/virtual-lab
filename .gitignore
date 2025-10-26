@@ -43,3 +43,7 @@ build/
 # Temporary files
 tmp/
 temp/
+
+# Vercel
+.vercel
+*.vercel.json
