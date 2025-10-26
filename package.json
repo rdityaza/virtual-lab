@@ -1,14 +1,19 @@
 {
   "name": "virtual-lab",
   "version": "1.0.0",
-  "description": "",
-  "main": "script.js",
+  "description": "Virtual Physics Lab - Projectile Motion Simulator with AI Chatbot",
+  "main": "server.js",
   "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
+  "keywords": ["physics", "education", "simulation", "projectile-motion"],
   "author": "",
   "license": "ISC",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
     "bcryptjs": "^3.0.2",

@@ -10,7 +10,8 @@ const Score = require('./models/Score');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
-const JWT_SECRET = 'kunci-rahasia-ini-sangat-aman-dan-harus-diganti';
+// JWT Secret dari environment variable atau fallback
+const JWT_SECRET = process.env.JWT_SECRET || 'kunci-rahasia-ini-sangat-aman-dan-harus-diganti';
 
 // AWAL Gemini AI
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'YOUR_GEMINI_API_KEY_HERE';
@@ -139,7 +140,8 @@ const fs = require('fs');
 const path = require('path');
 
 const app = express();
-const PORT = 3000;
+// Port configuration untuk deployment
+const PORT = process.env.PORT || 3000;
 
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
@@ -158,7 +160,8 @@ app.use(express.static(__dirname));
 
 const dataFilePath = path.join(__dirname, 'data.json');
 
-const connectionString = "mongodb+srv://user_lab:user_lab_098@cluster-lab-virtual.chof9bt.mongodb.net/?retryWrites=true&w=majority&appName=cluster-lab-virtual";
+// MongoDB Connection String dari environment variable atau fallback ke local
+const connectionString = process.env.MONGODB_URI || "mongodb+srv://user_lab:user_lab_098@cluster-lab-virtual.chof9bt.mongodb.net/?retryWrites=true&w=majority&appName=cluster-lab-virtual";
 
 mongoose.connect(connectionString)
   .then(() => {
@@ -357,6 +360,7 @@ app.post('/api/save', authMiddleware, async (req, res) => {
     }
 });
 
-app.listen(PORT, () => {
-    console.log(`Server berjalan di http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server berjalan di port ${PORT}`);
+    console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
 });
