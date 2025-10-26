@@ -2,13 +2,19 @@
   "name": "virtual-lab",
   "version": "1.0.0",
   "description": "Virtual Physics Lab - Projectile Motion Simulator with AI Chatbot",
-  "main": "server.js",
+  "main": "api/server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node server.js",
+    "dev": "vercel dev",
+    "build": "echo 'Build completed'",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["physics", "education", "simulation", "projectile-motion"],
+  "keywords": [
+    "physics",
+    "education",
+    "simulation",
+    "projectile-motion"
+  ],
   "author": "",
   "license": "ISC",
   "engines": {
@@ -21,5 +27,8 @@
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.19.1"
+  },
+  "devDependencies": {
+    "vercel": "^37.14.0"
   }
 }

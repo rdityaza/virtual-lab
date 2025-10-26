@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Load best score dari server
     async function loadBestScore() {
         try {
-            const response = await fetch('/api/best-score', {
+            const response = await fetch('/api/scores/best', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Save best score ke server
     async function saveBestScore(score) {
         try {
-            const response = await fetch('/api/best-score', {
+            const response = await fetch('/api/scores', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

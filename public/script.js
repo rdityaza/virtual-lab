@@ -216,7 +216,7 @@ async function saveResult(distance, height) {
             distance: distance,
             height: height
         };
-        const response = await fetch('/api/save', {
+        const response = await fetch('/api/simulation', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

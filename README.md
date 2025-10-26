@@ -45,18 +45,22 @@ NODE_ENV=production
    ```
 5. Buka `http://localhost:3000`
 
-## Deployment ke Render.com
+## Deployment ke Vercel (Serverless)
 
 ### Persiapan:
 1. Push kode ke GitHub repository
-2. Pastikan file `render.yaml` sudah ada
+2. Pastikan file `vercel.json` sudah ada
 3. Environment variables sudah di-setup
 
 ### Step-by-step Deployment:
 
-1. **Buat account di Render.com**
-2. **Connect GitHub repository**
-3. **Set environment variables di Render dashboard:**
+1. **Buat account di Vercel.com**
+2. **Import GitHub repository:**
+   - Klik "New Project"
+   - Import dari GitHub
+   - Pilih repository `virtual-lab`
+
+3. **Configure environment variables di Vercel dashboard:**
    - `GEMINI_API_KEY`: API key dari Google AI Studio
    - `MONGODB_URI`: Connection string MongoDB Atlas
    - `JWT_SECRET`: Secret key untuk JWT (generate random string)
@@ -64,13 +68,34 @@ NODE_ENV=production
 
 4. **Deploy otomatis** akan dimulai setelah setup
 
-### Environment Variables yang Diperlukan di Render:
+### Environment Variables yang Diperlukan di Vercel:
 
 ```
 GEMINI_API_KEY=AIzaSy...
 MONGODB_URI=mongodb+srv://...
 JWT_SECRET=your-super-secret-key-here
 NODE_ENV=production
+```
+
+### Struktur Project untuk Vercel:
+
+```
+virtual-lab/
+├── api/
+│   └── server.js         # Serverless function
+├── public/               # Static files
+│   ├── index.html
+│   ├── login.html
+│   ├── register.html
+│   ├── materi.html
+│   ├── kuis.html
+│   ├── *.css
+│   ├── *.js
+│   └── assets/
+├── models/              # MongoDB models
+├── vercel.json          # Vercel config
+├── package.json
+└── .env
 ```
 
 ## Struktur Project
